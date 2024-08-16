@@ -1,5 +1,5 @@
-# miniCRUD-Tarefas
-Atividade de CRUD proposta durante o roteiro de estudos do BackEnd do IEEE Ramo Estudantil CEFET-RJ.
+# mini CRUD-Tarefas
+Atividade de CRUD proposta para o roteiro de estudos do BackEnd do IEEE Ramo Estudantil CEFET-RJ.
 
 API de gestão de tarefas onde um usuário que possui nome, data de nascimento e CEP cria tarefas que possuem descrição, título e data/hora de criação.
 
