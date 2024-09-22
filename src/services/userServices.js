@@ -2,6 +2,7 @@ require('dotenv').config();
 const knex = require('../database/index');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 
 function validarNomeUser(nome) {
     const regex = /^[a-zA-Z0-9_]{3,16}$/;
@@ -30,25 +31,93 @@ async function createUser(nome, email, senha, cep, dataNascimento) {
             throw new Error("Nome inválido. O nome de usuário deve conter apenas letras, números e (_). Deve ter no mínimo 3 e máximo 16 caracteres");
         }
 
-        const hash = await bcrypt.hash(senha, 10);
+        const salt = bcrypt.genSaltSync();
+        const hash = bcrypt.hashSync(senha, salt);
 
         await knex("usuario").insert({
-            nome,
+            nome: nome,
             data_nascimento: dataNascimento,
-            email,
+            email: email,
             senha: hash,
-            cep
+            cep: cep
         });
         
         return "Usuário registrado com sucesso!";
+
     } catch (erro) {
         console.error("Erro ao criar usuário: ", erro.message);
         throw new Error(erro.message);
     }
 }
 
+async function getAllUsers(){
+    try{
+        const allUsers = await knex("usuario").select("*");
+        return allUsers;
 
+    } catch(erro){
+        throw new Error("erro ao buscar usuários: " + (erro));
+    }
+}
+
+async function getUserID(id){
+    
+    try{
+        const userExist = await knex("usuario").select("*").where({id:id}).first();
+        if(!userExist){
+            throw new Error("Não há usuário com esse id");
+        }
+        const user = {
+            nome: userExist.nome,
+            email: userExist.email,
+            cep: userExist.cep,
+            dataNascimento: userExist.dataNascimento
+        }
+
+        return user;
+    }catch(erro){
+        throw erro;
+    }
+}
+
+//login
+async function login(email,senha){
+    try{
+        email = validator.trim(email);
+        if(!(validator.isEmail(email))){
+            throw new Error("Email inválido");
+        }
+               
+        const user = await knex("usuario").select("*").where({email: email}).first();
+        if(!user){
+            throw new Error("Usuário não foi encontrado.")
+        }
+
+        const senhaTrue = bcrypt.compareSync(senha, user.senha);
+        
+        if(!senhaTrue){
+            throw new Error("senha incorreta.")
+        }
+
+        const userInfo = {
+            id: user.id,
+            nome: user.nome,
+          };
+
+          const token = jwt.sign(userInfo, process.env.JWT_KEY, {expiresIn: '4h'});
+
+          return token;
+
+    }catch(erro){
+        console.log("erro no login: " + erro);
+        throw erro;
+    }
+    
+}
 
 module.exports = {
-    createUser
+    createUser,
+    getAllUsers,
+    getUserID,
+    login,
 };
