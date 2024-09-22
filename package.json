@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "nodemon ./src/app.js"
+  },
+
   "dependencies": {
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
@@ -7,6 +11,8 @@
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "mysql2": "^3.11.0",
+    "nodemon": "^3.1.7",
     "validator": "^13.12.0"
   }
+ 
 }

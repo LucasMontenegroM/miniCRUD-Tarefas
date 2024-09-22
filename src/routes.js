@@ -1,6 +1,8 @@
 const Router = require("express").Router;
 const router = Router();
-const usuarioControlador = require("./controller/usuarioController");
+const userControlador = require("./controllers/userController");
 
 //CRUD usuario
-router.post("/usuario", usuarioControlador.createUsuario);
+router.post("/usuario", userControlador.createUser);
+
+module.exports = router;

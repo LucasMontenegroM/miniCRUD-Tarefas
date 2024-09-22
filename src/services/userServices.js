@@ -1,9 +1,9 @@
-require("dotenv").config();
-const knex = require("../database/index");
-const validator = require("validator");
-const bcrypt = require("bcrypt");
+require('dotenv').config();
+const knex = require('../database/index');
+const validator = require('validator');
+const bcrypt = require('bcrypt');
 
-function validarNomeUsuario(nome) {
+function validarNomeUser(nome) {
     const regex = /^[a-zA-Z0-9_]{3,16}$/;
     return regex.test(nome);
 }
@@ -21,12 +21,12 @@ async function createUser(nome, email, senha, cep, dataNascimento) {
             throw new Error("Email inválido");
         }
 
-        const jaExisteUsuario = await knex("usuario").select("*").where({ email }).first();
-        if (jaExisteUsuario) {
+        const jaExisteUser = await knex("usuario").select("*").where({ email }).first();
+        if (jaExisteUser) {
             throw new Error("Já existe um usuário cadastrado com esse email.");
         }
 
-        if (!validarNomeUsuario(nome)) {
+        if (!validarNomeUser(nome)) {
             throw new Error("Nome inválido. O nome de usuário deve conter apenas letras, números e (_). Deve ter no mínimo 3 e máximo 16 caracteres");
         }
 
@@ -36,7 +36,7 @@ async function createUser(nome, email, senha, cep, dataNascimento) {
             nome,
             data_nascimento: dataNascimento,
             email,
-            password: hash,
+            senha: hash,
             cep
         });
         
@@ -46,6 +46,8 @@ async function createUser(nome, email, senha, cep, dataNascimento) {
         throw new Error(erro.message);
     }
 }
+
+
 
 module.exports = {
     createUser
