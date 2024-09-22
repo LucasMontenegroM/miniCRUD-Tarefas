@@ -80,6 +80,43 @@ async function getUserID(id){
     }
 }
 
+async function updateUser(id, { nome, email, senha, cep, data_nascimento }) {
+    try {
+        const user = await knex("usuario").select("*").where({ id }).first();
+        if (!user) {
+            throw new Error("Usuário com esse ID não existe");
+        }
+
+        if (email) {
+            email = validator.trim(email);
+            if (!validator.isEmail(email)) {
+                throw new Error("Email inválido");
+            }
+        }
+
+        if (nome && !validarNomeUser(nome)) {
+            throw new Error("O nome de usuário deve conter apenas letras, números e (_). Deve ter no mínimo 3 e máximo 16 caracteres");
+        }
+
+        let userUpdated = {
+            nome,
+            email,
+            cep,
+            data_nascimento, 
+        };
+
+        if (senha) {
+            const salt = await bcrypt.genSalt(10);
+            userUpdated.senha = await bcrypt.hash(senha, salt);
+        }
+
+        await knex("usuario").update(userUpdated).where({ id });
+        return "Credenciais atualizadas.";
+    } catch (erro) {
+        throw erro;        
+    }
+}
+
 //login
 async function login(email,senha){
     try{
@@ -102,7 +139,7 @@ async function login(email,senha){
         const userInfo = {
             id: user.id,
             nome: user.nome,
-          };
+          };    
 
           const token = jwt.sign(userInfo, process.env.JWT_KEY, {expiresIn: '4h'});
 
@@ -119,5 +156,6 @@ module.exports = {
     createUser,
     getAllUsers,
     getUserID,
-    login,
+    updateUser,
+    login
 };

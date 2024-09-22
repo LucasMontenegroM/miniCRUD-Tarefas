@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const userService = require('../services/userServices');
+const { update } = require('../database');
+const validator = require('validator');
 
 
 async function createUser(req, res){
@@ -38,6 +40,20 @@ async function getUserID(req, res){
     }
 }
 
+async function updateUser(req, res) {
+    try {
+        const { nome, email, senha, cep, data_nascimento } = req.body;
+        const id_user = req.user.id;
+
+        const updateResult = await userService.updateUser(id_user, { nome, email, senha, cep, data_nascimento });
+
+        res.json({ status: true, message: updateResult });
+    } catch (erro) {
+        console.log(erro);
+        res.json({ status: false, message: erro.message });
+    }
+}
+
 //login
 async function login(req, res){
     try{
@@ -57,5 +73,6 @@ module.exports = {
     createUser,
     getAllUsers,
     getUserID,
-    login,
+    updateUser,
+    login
 }
